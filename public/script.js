@@ -1,4 +1,4 @@
-const numero = "5519982144043"; // TROCAR
+const numero = "5519982144043";
 
 let produtos = [];
 let carrinho = {};
@@ -6,6 +6,7 @@ let carrinho = {};
 let categoriaAtual = "Todos";
 let categorias = [];
 
+// 🚀 CARREGAR PRODUTOS
 async function carregarProdutos() {
   const res = await fetch("/produtos");
   produtos = await res.json();
@@ -13,7 +14,7 @@ async function carregarProdutos() {
   produtos = produtos.map(p => ({
     ...p,
     tipo: (p.tipo || "int").toLowerCase().trim(),
-    unidade: p.unidade || "un"
+    unidade: (p.unidade || "un").toString().trim()
   }));
 
   gerarCategorias();
@@ -89,10 +90,10 @@ function render(lista) {
           min="0"
           value="${qtd}"
           class="input-qtd"
-          oninput="setQtd('${p.nome}', this.value, ${p.preco}, '${p.tipo}')"
+          oninput="setQtd('${p.nome}', this.value, ${p.preco}, '${p.tipo}', '${p.unidade}')"
         />
 
-        <button onclick="mais('${p.nome}', ${p.preco}, '${p.tipo}')">+</button>
+        <button onclick="mais('${p.nome}', ${p.preco}, '${p.tipo}', '${p.unidade}')">+</button>
       </div>
     `;
 
@@ -100,10 +101,10 @@ function render(lista) {
   });
 }
 
-// ➕
-function mais(nome, preco, tipo) {
+// ➕ ADICIONAR
+function mais(nome, preco, tipo, unidade) {
   if (!carrinho[nome]) {
-    carrinho[nome] = { nome, preco, quantidade: 0, tipo };
+    carrinho[nome] = { nome, preco, quantidade: 0, tipo, unidade };
   }
 
   carrinho[nome].quantidade += tipo === "decimal" ? 0.1 : 1;
@@ -112,7 +113,7 @@ function mais(nome, preco, tipo) {
   aplicarFiltros();
 }
 
-// ➖
+// ➖ REMOVER
 function menos(nome) {
   if (carrinho[nome]) {
     carrinho[nome].quantidade--;
@@ -126,8 +127,8 @@ function menos(nome) {
   aplicarFiltros();
 }
 
-// ✏️ INPUT
-function setQtd(nome, valor, preco, tipo) {
+// ✏️ DIGITAÇÃO
+function setQtd(nome, valor, preco, tipo, unidade) {
   let qtd = tipo === "decimal" ? parseFloat(valor) : parseInt(valor);
 
   qtd = isNaN(qtd) ? 0 : qtd;
@@ -135,7 +136,7 @@ function setQtd(nome, valor, preco, tipo) {
   if (qtd <= 0) {
     delete carrinho[nome];
   } else {
-    carrinho[nome] = { nome, preco, quantidade: qtd, tipo };
+    carrinho[nome] = { nome, preco, quantidade: qtd, tipo, unidade };
   }
 
   atualizarResumo();
