@@ -7,11 +7,20 @@ const app = express();
 // Servir frontend
 app.use(express.static(path.join(__dirname, "public")));
 
-// Função para ler Excel
+// 🔥 Função corrigida
 function lerProdutos() {
   const wb = xlsx.readFile(path.join(__dirname, "data/produtos.xlsx"));
   const sheet = wb.Sheets[wb.SheetNames[0]];
-  return xlsx.utils.sheet_to_json(sheet);
+  const rows = xlsx.utils.sheet_to_json(sheet);
+
+  // ✅ PADRONIZAÇÃO PROFISSIONAL
+  return rows.map(row => ({
+    categoria: row.categoria || "Outros",
+    nome: row.nome || "Sem nome",
+    preco: Number(row.preco) || 0,
+    tipo: (row.tipo || "int").toString().toLowerCase().trim(),
+    unidade: (row.unidade || "un").toString().trim()
+  }));
 }
 
 // API
@@ -20,11 +29,14 @@ app.get("/produtos", (req, res) => {
     const produtos = lerProdutos();
     res.json(produtos);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ erro: "Erro ao ler Excel" });
   }
 });
 
-// Start
-app.listen(3000, () => {
-  console.log("Rodando em http://localhost:3000");
+// 🔥 PORTA CORRETA PRA RENDER
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("Servidor rodando");
 });
