@@ -1,0 +1,106 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+}
+
+header {
+  background: #25D366;
+  color: white;
+  padding: 16px;
+  text-align: center;
+}
+
+.top-area {
+  padding: 12px;
+}
+
+.top-area input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+}
+
+#categorias {
+  display: flex;
+  overflow-x: auto;
+  padding: 10px;
+  gap: 8px;
+}
+
+.cat-btn {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cat-btn.active {
+  background: #25D366;
+  color: white;
+  border: none;
+}
+
+#produtos {
+  padding: 12px;
+  margin-bottom: 90px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+.preco {
+  color: #666;
+  margin: 6px 0;
+}
+
+.controle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.input-qtd {
+  width: 80px;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  height: 36px;
+}
+
+.controle button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #25D366;
+  color: white;
+  border-radius: 10px;
+}
+
+#bottom-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 -3px 8px rgba(0,0,0,0.1);
+}
+
+#bottom-bar button {
+  background: #25D366;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+}
