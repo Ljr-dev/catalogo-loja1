@@ -4,9 +4,9 @@ const xlsx = require("xlsx");
 
 const app = express();
 
-// 🔥 ROTA PING (coloca logo no começo)
+// 🔥 PRIMEIRO
 app.get("/ping", (req, res) => {
-  res.status(200).send("ok");
+  res.send("ok");
 });
 
 // Servir frontend
