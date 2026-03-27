@@ -4,10 +4,7 @@ const xlsx = require("xlsx");
 
 const app = express();
 
-// 🔥 PRIMEIRO
-app.get("/ping", (req, res) => {
-  res.send("ok");
-});
+
 
 // Servir frontend
 app.use(express.static(path.join(__dirname, "public")));
