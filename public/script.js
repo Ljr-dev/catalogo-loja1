@@ -91,7 +91,7 @@ function render(lista) {
   });
 }
 
-// ➕ MAIS
+// ➕
 function mais(nome, preco, tipo, unidade) {
   if (!carrinho[nome]) {
     carrinho[nome] = { nome, preco, quantidade: 0, tipo, unidade };
@@ -102,7 +102,7 @@ function mais(nome, preco, tipo, unidade) {
   atualizarTudo();
 }
 
-// ➖ MENOS
+// ➖
 function menos(nome) {
   if (carrinho[nome]) {
     carrinho[nome].quantidade--;
@@ -115,7 +115,7 @@ function menos(nome) {
   atualizarTudo();
 }
 
-// ✏️ INPUT
+// ✏️
 function setQtd(nome, valor, preco, tipo, unidade) {
   let qtd = parseFloat(valor) || 0;
 
@@ -128,14 +128,14 @@ function setQtd(nome, valor, preco, tipo, unidade) {
   atualizarTudo();
 }
 
-// 🔄 ATUALIZA TUDO
+// 🔄
 function atualizarTudo() {
   atualizarResumo();
   atualizarCarrinho();
   aplicarFiltros();
 }
 
-// 🛒 CARRINHO
+// 🛒
 function atualizarCarrinho() {
   const box = document.getElementById("carrinho-itens");
   box.innerHTML = "";
@@ -147,22 +147,22 @@ function atualizarCarrinho() {
     const subtotal = p.preco * p.quantidade;
 
     div.innerHTML = `
-      <span>${p.nome} (${p.quantidade})</span>
-      <span>R$ ${subtotal.toFixed(2)}</span>
-      <button class="remover" onclick="removerItem('${p.nome}')">X</button>
+      <div class="item-nome">${p.nome} (${p.quantidade})</div>
+      <div class="item-preco">R$ ${subtotal.toFixed(2).replace(".", ",")}</div>
+      <button class="remover" onclick="removerItem('${p.nome}')">✕</button>
     `;
 
     box.appendChild(div);
   });
 }
 
-// ❌ REMOVER
+// ❌
 function removerItem(nome) {
   delete carrinho[nome];
   atualizarTudo();
 }
 
-// 💰 TOTAL
+// 💰
 function atualizarResumo() {
   let total = 0;
   let itens = 0;
@@ -176,7 +176,7 @@ function atualizarResumo() {
     `${itens} itens | R$ ${total.toFixed(2).replace(".", ",")}`;
 }
 
-// 📲 WHATS
+// 📲
 function enviar() {
   let total = 0;
   let msg = "🛒 PEDIDO\n\n";

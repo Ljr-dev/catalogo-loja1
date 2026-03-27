@@ -5,6 +5,7 @@ body {
   color: #333;
 }
 
+/* HEADER */
 header {
   background: linear-gradient(90deg, #6b8e23, #a3b18a);
   color: white;
@@ -12,6 +13,7 @@ header {
   text-align: center;
 }
 
+/* INPUTS */
 .top-area {
   padding: 14px;
 }
@@ -24,6 +26,7 @@ header {
   border: 1px solid #ddd;
 }
 
+/* CATEGORIAS */
 #categorias {
   display: flex;
   overflow-x: auto;
@@ -45,8 +48,10 @@ header {
   border: none;
 }
 
+/* PRODUTOS */
 #produtos {
   padding: 12px;
+  margin-bottom: 100px;
 }
 
 .card {
@@ -59,8 +64,10 @@ header {
 
 .preco {
   color: #777;
+  margin: 6px 0;
 }
 
+/* CONTROLE */
 .controle {
   display: flex;
   justify-content: space-between;
@@ -83,26 +90,43 @@ header {
   border-radius: 10px;
 }
 
+/* 🛒 CARRINHO */
 #carrinho-box {
   background: white;
   margin: 12px;
-  padding: 15px;
+  padding: 16px;
   border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 
 .item-carrinho {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.item-nome {
+  font-size: 14px;
+}
+
+.item-preco {
+  font-weight: bold;
 }
 
 .remover {
-  background: red;
+  background: #e63946;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
 }
 
+/* BARRA */
 #bottom-bar {
   position: fixed;
   bottom: 0;
@@ -111,4 +135,13 @@ header {
   padding: 12px;
   display: flex;
   justify-content: space-between;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.08);
+}
+
+#bottom-bar button {
+  background: #6b8e23;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
 }
