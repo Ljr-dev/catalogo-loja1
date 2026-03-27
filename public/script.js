@@ -6,15 +6,15 @@ let carrinho = {};
 let categoriaAtual = "Todos";
 let categorias = [];
 
-// 🚀 CARREGAR PRODUTOS
+// 🚀 CARREGAR
 async function carregarProdutos() {
   const res = await fetch("/produtos");
   produtos = await res.json();
 
   produtos = produtos.map(p => ({
     ...p,
-    tipo: (p.tipo || "int").toLowerCase().trim(),
-    unidade: (p.unidade || "un").toString().trim()
+    tipo: (p.tipo || "int").toLowerCase(),
+    unidade: (p.unidade || "un")
   }));
 
   gerarCategorias();
@@ -45,7 +45,7 @@ function renderCategorias() {
   });
 }
 
-// 🔹 FILTRO
+// 🔍 FILTRO
 function aplicarFiltros() {
   let lista = produtos;
 
@@ -56,23 +56,19 @@ function aplicarFiltros() {
   const termo = document.getElementById("busca").value.toLowerCase();
 
   if (termo) {
-    lista = lista.filter(p =>
-      p.nome.toLowerCase().includes(termo)
-    );
+    lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
   }
 
   render(lista);
-  renderCategorias();
 }
 
-// 🔹 RENDER
+// 🧱 RENDER
 function render(lista) {
   const container = document.getElementById("produtos");
   container.innerHTML = "";
 
   lista.forEach((p) => {
     const qtd = carrinho[p.nome]?.quantidade || 0;
-    const step = p.tipo === "decimal" ? "0.1" : "1";
 
     const div = document.createElement("div");
     div.className = "card";
@@ -84,14 +80,8 @@ function render(lista) {
       <div class="controle">
         <button onclick="menos('${p.nome}')">−</button>
 
-        <input 
-          type="number"
-          step="${step}"
-          min="0"
-          value="${qtd}"
-          class="input-qtd"
-          oninput="setQtd('${p.nome}', this.value, ${p.preco}, '${p.tipo}', '${p.unidade}')"
-        />
+        <input type="number" value="${qtd}" class="input-qtd"
+          oninput="setQtd('${p.nome}', this.value, ${p.preco}, '${p.tipo}', '${p.unidade}')">
 
         <button onclick="mais('${p.nome}', ${p.preco}, '${p.tipo}', '${p.unidade}')">+</button>
       </div>
@@ -101,7 +91,7 @@ function render(lista) {
   });
 }
 
-// ➕ ADICIONAR
+// ➕ MAIS
 function mais(nome, preco, tipo, unidade) {
   if (!carrinho[nome]) {
     carrinho[nome] = { nome, preco, quantidade: 0, tipo, unidade };
@@ -109,11 +99,10 @@ function mais(nome, preco, tipo, unidade) {
 
   carrinho[nome].quantidade += tipo === "decimal" ? 0.1 : 1;
 
-  atualizarResumo();
-  aplicarFiltros();
+  atualizarTudo();
 }
 
-// ➖ REMOVER
+// ➖ MENOS
 function menos(nome) {
   if (carrinho[nome]) {
     carrinho[nome].quantidade--;
@@ -123,15 +112,12 @@ function menos(nome) {
     }
   }
 
-  atualizarResumo();
-  aplicarFiltros();
+  atualizarTudo();
 }
 
-// ✏️ DIGITAÇÃO
+// ✏️ INPUT
 function setQtd(nome, valor, preco, tipo, unidade) {
-  let qtd = tipo === "decimal" ? parseFloat(valor) : parseInt(valor);
-
-  qtd = isNaN(qtd) ? 0 : qtd;
+  let qtd = parseFloat(valor) || 0;
 
   if (qtd <= 0) {
     delete carrinho[nome];
@@ -139,10 +125,44 @@ function setQtd(nome, valor, preco, tipo, unidade) {
     carrinho[nome] = { nome, preco, quantidade: qtd, tipo, unidade };
   }
 
-  atualizarResumo();
+  atualizarTudo();
 }
 
-// 🧮 TOTAL
+// 🔄 ATUALIZA TUDO
+function atualizarTudo() {
+  atualizarResumo();
+  atualizarCarrinho();
+  aplicarFiltros();
+}
+
+// 🛒 CARRINHO
+function atualizarCarrinho() {
+  const box = document.getElementById("carrinho-itens");
+  box.innerHTML = "";
+
+  Object.values(carrinho).forEach(p => {
+    const div = document.createElement("div");
+    div.className = "item-carrinho";
+
+    const subtotal = p.preco * p.quantidade;
+
+    div.innerHTML = `
+      <span>${p.nome} (${p.quantidade})</span>
+      <span>R$ ${subtotal.toFixed(2)}</span>
+      <button class="remover" onclick="removerItem('${p.nome}')">X</button>
+    `;
+
+    box.appendChild(div);
+  });
+}
+
+// ❌ REMOVER
+function removerItem(nome) {
+  delete carrinho[nome];
+  atualizarTudo();
+}
+
+// 💰 TOTAL
 function atualizarResumo() {
   let total = 0;
   let itens = 0;
@@ -156,44 +176,19 @@ function atualizarResumo() {
     `${itens} itens | R$ ${total.toFixed(2).replace(".", ",")}`;
 }
 
-// 🔍 BUSCA
-document.getElementById("busca").addEventListener("input", aplicarFiltros);
-
-// 📲 WHATSAPP
+// 📲 WHATS
 function enviar() {
-  if (Object.keys(carrinho).length === 0) {
-    alert("Adicione pelo menos um produto!");
-    return;
-  }
-
-  const nome = document.getElementById("nome").value || "Não informado";
-
   let total = 0;
-  let msg = "🛒 NOVO ORÇAMENTO\n\n";
-
-  msg += `👤 Cliente: ${nome}\n\n`;
-  msg += "📦 Itens:\n";
+  let msg = "🛒 PEDIDO\n\n";
 
   Object.values(carrinho).forEach(p => {
-    const qtd = p.tipo === "decimal"
-      ? p.quantidade.toFixed(2)
-      : p.quantidade;
-
-    msg += `• ${p.nome} (${qtd} ${p.unidade})\n`;
+    msg += `• ${p.nome} (${p.quantidade})\n`;
     total += p.preco * p.quantidade;
   });
 
-  msg += `\n💰 Total estimado: R$ ${total.toFixed(2).replace(".", ",")}\n`;
+  msg += `\n💰 Total: R$ ${total.toFixed(2)}`;
 
-  const hora = new Date().toLocaleTimeString("pt-BR", {
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-
-  msg += `\n🕒 ${hora}`;
-
-  const url = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
-  window.open(url, "_blank");
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`);
 }
 
 // START
