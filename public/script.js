@@ -4,7 +4,7 @@ let produtos = [];
 let carrinho = {};
 let categoriaAtual = "Todos";
 
-// 🚀 CARREGAR
+// 🚀
 async function carregarProdutos() {
   const res = await fetch("/produtos");
   produtos = await res.json();
@@ -13,7 +13,7 @@ async function carregarProdutos() {
   aplicarFiltros();
 }
 
-// 📂 CATEGORIAS
+// 📂
 function gerarCategorias() {
   const cats = ["Todos", ...new Set(produtos.map(p => p.categoria))];
   const container = document.getElementById("categorias");
@@ -36,7 +36,7 @@ function gerarCategorias() {
   });
 }
 
-// 🔍 FILTRO
+// 🔍
 function aplicarFiltros() {
   let lista = produtos;
 
@@ -52,13 +52,19 @@ function aplicarFiltros() {
   render(lista);
 }
 
-// 🧱 RENDER PRODUTOS
+// 🔥 define se aceita decimal
+function aceitaDecimal(produto) {
+  return produto.categoria.toLowerCase().includes("fio");
+}
+
+// 🧱
 function render(lista) {
   const container = document.getElementById("produtos");
   container.innerHTML = "";
 
   lista.forEach(p => {
     const qtd = carrinho[p.nome]?.quantidade || 0;
+    const decimal = aceitaDecimal(p);
 
     const div = document.createElement("div");
     div.className = "card";
@@ -70,7 +76,12 @@ function render(lista) {
 
       <div class="controle">
         <button onclick="menos('${p.nome}')">−</button>
-        <span>${qtd}</span>
+
+        <input type="number"
+          step="${decimal ? "0.1" : "1"}"
+          value="${qtd}"
+          oninput="setQtd('${p.nome}', this.value, ${p.preco})">
+
         <button onclick="mais('${p.nome}', ${p.preco})">+</button>
       </div>
     `;
@@ -81,38 +92,59 @@ function render(lista) {
 
 // ➕
 function mais(nome, preco) {
+  const p = produtos.find(x => x.nome === nome);
+  const passo = aceitaDecimal(p) ? 0.5 : 1;
+
   if (!carrinho[nome]) {
     carrinho[nome] = { nome, preco, quantidade: 0 };
   }
 
-  carrinho[nome].quantidade++;
+  carrinho[nome].quantidade += passo;
   atualizarTudo();
 }
 
 // ➖
 function menos(nome) {
+  const p = produtos.find(x => x.nome === nome);
+  const passo = aceitaDecimal(p) ? 0.5 : 1;
+
   if (carrinho[nome]) {
-    carrinho[nome].quantidade--;
+    carrinho[nome].quantidade -= passo;
+
     if (carrinho[nome].quantidade <= 0) delete carrinho[nome];
   }
 
   atualizarTudo();
 }
 
-// ❌ REMOVER
+// ✏️
+function setQtd(nome, valor, preco) {
+  let qtd = parseFloat(valor.replace(",", ".")) || 0;
+  qtd = Math.round(qtd * 10) / 10;
+
+  if (qtd <= 0) {
+    delete carrinho[nome];
+  } else {
+    carrinho[nome] = { nome, preco, quantidade: qtd };
+  }
+
+  atualizarTudo();
+}
+
+// ❌
 function remover(nome) {
   delete carrinho[nome];
   atualizarTudo();
 }
 
-// 🔄 ATUALIZAR
+// 🔄
 function atualizarTudo() {
   atualizarCarrinho();
   atualizarResumo();
   aplicarFiltros();
 }
 
-// 🛒 CARRINHO
+// 🛒
 function atualizarCarrinho() {
   const box = document.getElementById("carrinho-itens");
   box.innerHTML = "";
@@ -128,7 +160,7 @@ function atualizarCarrinho() {
         <strong>${p.nome}</strong>
         <div class="mini">
           <button onclick="menos('${p.nome}')">−</button>
-          <span>${p.quantidade}</span>
+          <span>${p.quantidade % 1 === 0 ? p.quantidade : p.quantidade.toFixed(1)}</span>
           <button onclick="mais('${p.nome}', ${p.preco})">+</button>
         </div>
       </div>
@@ -143,7 +175,7 @@ function atualizarCarrinho() {
   });
 }
 
-// 💰 RESUMO
+// 💰
 function atualizarResumo() {
   let total = 0;
   let itens = 0;
@@ -160,7 +192,7 @@ function atualizarResumo() {
     total > 0 ? "block" : "none";
 }
 
-// 📲 ENVIAR
+// 📲
 function enviar() {
   let nomeCliente = document.getElementById("nome").value || "Cliente";
   let msg = `🛒 Pedido de ${nomeCliente}\n\n`;
@@ -176,7 +208,7 @@ function enviar() {
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`);
 }
 
-// 📱 ABRIR/CLOSE
+// 📱
 function toggleCarrinho() {
   document.getElementById("carrinho-area").classList.toggle("open");
 }
