@@ -21,21 +21,21 @@
 <div id="categorias"></div>
 
 <div class="container">
-  <div class="produtos-area">
-    <div id="produtos"></div>
-  </div>
+  <div id="produtos"></div>
 
   <!-- 🛒 CARRINHO -->
   <div class="carrinho-area" id="carrinho-area">
-    <div id="carrinho-box">
+    <div class="carrinho-header">
       <h3>🛒 Seu Carrinho</h3>
-      <div id="carrinho-itens"></div>
+      <button onclick="toggleCarrinho()">✖</button>
     </div>
+
+    <div id="carrinho-itens"></div>
   </div>
 </div>
 
 <!-- 🔥 BOTÃO MOBILE -->
-<button id="abrir-carrinho" onclick="toggleCarrinho()">🛒 Ver Carrinho</button>
+<button id="btn-carrinho" onclick="toggleCarrinho()">🛒</button>
 
 <!-- 🔻 BARRA -->
 <div id="bottom-bar">

@@ -3,7 +3,6 @@ const numero = "5519982144043";
 let produtos = [];
 let carrinho = {};
 let categoriaAtual = "Todos";
-let categorias = [];
 
 // 🚀 CARREGAR
 async function carregarProdutos() {
@@ -14,19 +13,14 @@ async function carregarProdutos() {
   aplicarFiltros();
 }
 
-// 🔹 CATEGORIAS
+// 📂 CATEGORIAS
 function gerarCategorias() {
-  categorias = ["Todos", ...new Set(produtos.map(p => p.categoria))];
-  renderCategorias();
-}
-
-function renderCategorias() {
+  const cats = ["Todos", ...new Set(produtos.map(p => p.categoria))];
   const container = document.getElementById("categorias");
   container.innerHTML = "";
 
-  categorias.forEach(cat => {
+  cats.forEach(cat => {
     const btn = document.createElement("div");
-
     btn.className = "cat-btn";
     if (cat === categoriaAtual) btn.classList.add("active");
 
@@ -34,7 +28,7 @@ function renderCategorias() {
 
     btn.onclick = () => {
       categoriaAtual = cat;
-      renderCategorias();
+      gerarCategorias();
       aplicarFiltros();
     };
 
@@ -51,17 +45,14 @@ function aplicarFiltros() {
   }
 
   const termo = document.getElementById("busca").value.toLowerCase();
-
   if (termo) {
     lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
   }
 
-  lista.sort((a, b) => a.nome.localeCompare(b.nome));
-
   render(lista);
 }
 
-// 🧱 RENDER
+// 🧱 RENDER PRODUTOS
 function render(lista) {
   const container = document.getElementById("produtos");
   container.innerHTML = "";
@@ -73,23 +64,13 @@ function render(lista) {
     div.className = "card";
 
     div.innerHTML = `
-      <div class="card-top">
-        <div>
-          <h3>${p.nome}</h3>
-          <small>${p.categoria}</small>
-        </div>
-        <div class="preco">
-          R$ ${p.preco.toFixed(2).replace(".", ",")}
-        </div>
-      </div>
+      <h3>${p.nome}</h3>
+      <small>${p.categoria}</small>
+      <div class="preco">R$ ${p.preco.toFixed(2).replace(".", ",")}</div>
 
       <div class="controle">
         <button onclick="menos('${p.nome}')">−</button>
-
-        <input type="number"
-          value="${qtd}"
-          oninput="setQtd('${p.nome}', this.value, ${p.preco})">
-
+        <span>${qtd}</span>
         <button onclick="mais('${p.nome}', ${p.preco})">+</button>
       </div>
     `;
@@ -103,6 +84,7 @@ function mais(nome, preco) {
   if (!carrinho[nome]) {
     carrinho[nome] = { nome, preco, quantidade: 0 };
   }
+
   carrinho[nome].quantidade++;
   atualizarTudo();
 }
@@ -112,18 +94,6 @@ function menos(nome) {
   if (carrinho[nome]) {
     carrinho[nome].quantidade--;
     if (carrinho[nome].quantidade <= 0) delete carrinho[nome];
-  }
-  atualizarTudo();
-}
-
-// ✏️
-function setQtd(nome, valor, preco) {
-  let qtd = parseFloat(valor) || 0;
-
-  if (qtd <= 0) {
-    delete carrinho[nome];
-  } else {
-    carrinho[nome] = { nome, preco, quantidade: qtd };
   }
 
   atualizarTudo();
@@ -135,28 +105,28 @@ function remover(nome) {
   atualizarTudo();
 }
 
-// 🔄
+// 🔄 ATUALIZAR
 function atualizarTudo() {
-  atualizarResumo();
   atualizarCarrinho();
+  atualizarResumo();
   aplicarFiltros();
 }
 
-// 🛒
+// 🛒 CARRINHO
 function atualizarCarrinho() {
   const box = document.getElementById("carrinho-itens");
   box.innerHTML = "";
 
   Object.values(carrinho).forEach(p => {
-    const div = document.createElement("div");
-    div.className = "item-carrinho";
-
     const subtotal = p.preco * p.quantidade;
+
+    const div = document.createElement("div");
+    div.className = "item";
 
     div.innerHTML = `
       <div>
         <strong>${p.nome}</strong>
-        <div class="mini-controle">
+        <div class="mini">
           <button onclick="menos('${p.nome}')">−</button>
           <span>${p.quantidade}</span>
           <button onclick="mais('${p.nome}', ${p.preco})">+</button>
@@ -165,7 +135,7 @@ function atualizarCarrinho() {
 
       <div>
         <strong>R$ ${subtotal.toFixed(2).replace(".", ",")}</strong>
-        <button onclick="remover('${p.nome}')" class="btn-remover">❌</button>
+        <button onclick="remover('${p.nome}')">❌</button>
       </div>
     `;
 
@@ -173,7 +143,7 @@ function atualizarCarrinho() {
   });
 }
 
-// 💰
+// 💰 RESUMO
 function atualizarResumo() {
   let total = 0;
   let itens = 0;
@@ -190,12 +160,11 @@ function atualizarResumo() {
     total > 0 ? "block" : "none";
 }
 
-// 📲
+// 📲 ENVIAR
 function enviar() {
-  let total = 0;
   let nomeCliente = document.getElementById("nome").value || "Cliente";
-
   let msg = `🛒 Pedido de ${nomeCliente}\n\n`;
+  let total = 0;
 
   Object.values(carrinho).forEach(p => {
     msg += `• ${p.nome} (${p.quantidade})\n`;
@@ -207,7 +176,7 @@ function enviar() {
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`);
 }
 
-// 📱 TOGGLE MOBILE
+// 📱 ABRIR/CLOSE
 function toggleCarrinho() {
   document.getElementById("carrinho-area").classList.toggle("open");
 }
