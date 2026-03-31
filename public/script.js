@@ -10,12 +10,6 @@ async function carregarProdutos() {
   const res = await fetch("/produtos");
   produtos = await res.json();
 
-  produtos = produtos.map(p => ({
-    ...p,
-    tipo: (p.tipo || "int").toLowerCase(),
-    unidade: (p.unidade || "un")
-  }));
-
   gerarCategorias();
   aplicarFiltros();
 }
@@ -32,11 +26,19 @@ function renderCategorias() {
 
   categorias.forEach(cat => {
     const btn = document.createElement("div");
-    btn.className = "cat-btn" + (cat === categoriaAtual ? " active" : "");
+
+    // 🔥 GARANTE QUE ACTIVE FUNCIONE
+    btn.className = "cat-btn";
+    if (cat === categoriaAtual) {
+      btn.classList.add("active");
+    }
+
     btn.innerText = cat;
 
     btn.onclick = () => {
       categoriaAtual = cat;
+
+      renderCategorias(); // 🔥 ESSENCIAL (corrige o bug)
       aplicarFiltros();
     };
 
@@ -58,8 +60,6 @@ function aplicarFiltros() {
     lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
   }
 
-  lista.sort((a, b) => a.nome.localeCompare(b.nome));
-
   render(lista);
 }
 
@@ -68,24 +68,32 @@ function render(lista) {
   const container = document.getElementById("produtos");
   container.innerHTML = "";
 
-  lista.forEach((p) => {
+  lista.forEach(p => {
     const qtd = carrinho[p.nome]?.quantidade || 0;
 
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
-      <h3>${p.nome}</h3>
-      <p class="preco">R$ ${p.preco.toFixed(2).replace(".", ",")} / ${p.unidade}</p>
+      <div class="card-top">
+        <div>
+          <h3>${p.nome}</h3>
+          <small>${p.categoria}</small>
+        </div>
+        <div class="preco">
+          R$ ${p.preco.toFixed(2).replace(".", ",")}
+        </div>
+      </div>
 
       <div class="controle">
         <button onclick="menos('${p.nome}')">−</button>
 
-        <input type="number" step="${p.tipo === 'decimal' ? '0.1' : '1'}"
-          value="${qtd}" class="input-qtd"
-          oninput="setQtd('${p.nome}', this.value, ${p.preco}, '${p.tipo}', '${p.unidade}')">
+        <input type="number"
+          value="${qtd}"
+          class="input-qtd"
+          oninput="setQtd('${p.nome}', this.value, ${p.preco})">
 
-        <button onclick="mais('${p.nome}', ${p.preco}, '${p.tipo}', '${p.unidade}')">+</button>
+        <button onclick="mais('${p.nome}', ${p.preco})">+</button>
       </div>
     `;
 
@@ -94,19 +102,12 @@ function render(lista) {
 }
 
 // ➕
-function mais(nome, preco, tipo, unidade) {
+function mais(nome, preco) {
   if (!carrinho[nome]) {
-    carrinho[nome] = { nome, preco, quantidade: 0, tipo, unidade };
+    carrinho[nome] = { nome, preco, quantidade: 0 };
   }
 
-  if (tipo === "decimal") {
-    carrinho[nome].quantidade = parseFloat(
-      (carrinho[nome].quantidade + 0.1).toFixed(2)
-    );
-  } else {
-    carrinho[nome].quantidade += 1;
-  }
-
+  carrinho[nome].quantidade++;
   atualizarTudo();
 }
 
@@ -124,13 +125,13 @@ function menos(nome) {
 }
 
 // ✏️
-function setQtd(nome, valor, preco, tipo, unidade) {
+function setQtd(nome, valor, preco) {
   let qtd = parseFloat(valor) || 0;
 
   if (qtd <= 0) {
     delete carrinho[nome];
   } else {
-    carrinho[nome] = { nome, preco, quantidade: qtd, tipo, unidade };
+    carrinho[nome] = { nome, preco, quantidade: qtd };
   }
 
   atualizarTudo();
@@ -140,7 +141,6 @@ function setQtd(nome, valor, preco, tipo, unidade) {
 function atualizarTudo() {
   atualizarResumo();
   atualizarCarrinho();
-  aplicarFiltros();
 }
 
 // 🛒
@@ -150,15 +150,7 @@ function atualizarCarrinho() {
 
   Object.values(carrinho).forEach(p => {
     const div = document.createElement("div");
-    div.className = "item-carrinho";
-
-    const subtotal = p.preco * p.quantidade;
-
-    div.innerHTML = `
-      <span>${p.nome} (${p.quantidade} ${p.unidade})</span>
-      <span>R$ ${subtotal.toFixed(2).replace(".", ",")}</span>
-    `;
-
+    div.innerText = `${p.nome} (${p.quantidade})`;
     box.appendChild(div);
   });
 }
@@ -170,7 +162,7 @@ function atualizarResumo() {
 
   Object.values(carrinho).forEach(p => {
     total += p.preco * p.quantidade;
-    itens += p.tipo === "int" ? p.quantidade : 1;
+    itens += p.quantidade;
   });
 
   document.getElementById("resumo").innerText =
@@ -183,12 +175,10 @@ function atualizarResumo() {
 // 📲
 function enviar() {
   let total = 0;
-  let nomeCliente = document.getElementById("nome").value || "Cliente";
-
-  let msg = `🛒 Pedido de ${nomeCliente}\n\n`;
+  let msg = "🛒 PEDIDO\n\n";
 
   Object.values(carrinho).forEach(p => {
-    msg += `• ${p.nome} (${p.quantidade} ${p.unidade})\n`;
+    msg += `• ${p.nome} (${p.quantidade})\n`;
     total += p.preco * p.quantidade;
   });
 
