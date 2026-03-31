@@ -28,15 +28,13 @@ function renderCategorias() {
     const btn = document.createElement("div");
 
     btn.className = "cat-btn";
-    if (cat === categoriaAtual) {
-      btn.classList.add("active");
-    }
+    if (cat === categoriaAtual) btn.classList.add("active");
 
     btn.innerText = cat;
 
     btn.onclick = () => {
       categoriaAtual = cat;
-      renderCategorias(); // 🔥 ESSENCIAL
+      renderCategorias();
       aplicarFiltros();
     };
 
@@ -90,7 +88,6 @@ function render(lista) {
 
         <input type="number"
           value="${qtd}"
-          class="input-qtd"
           oninput="setQtd('${p.nome}', this.value, ${p.preco})">
 
         <button onclick="mais('${p.nome}', ${p.preco})">+</button>
@@ -106,7 +103,6 @@ function mais(nome, preco) {
   if (!carrinho[nome]) {
     carrinho[nome] = { nome, preco, quantidade: 0 };
   }
-
   carrinho[nome].quantidade++;
   atualizarTudo();
 }
@@ -115,12 +111,8 @@ function mais(nome, preco) {
 function menos(nome) {
   if (carrinho[nome]) {
     carrinho[nome].quantidade--;
-
-    if (carrinho[nome].quantidade <= 0) {
-      delete carrinho[nome];
-    }
+    if (carrinho[nome].quantidade <= 0) delete carrinho[nome];
   }
-
   atualizarTudo();
 }
 
@@ -137,10 +129,17 @@ function setQtd(nome, valor, preco) {
   atualizarTudo();
 }
 
+// ❌ REMOVER
+function remover(nome) {
+  delete carrinho[nome];
+  atualizarTudo();
+}
+
 // 🔄
 function atualizarTudo() {
   atualizarResumo();
   atualizarCarrinho();
+  aplicarFiltros();
 }
 
 // 🛒
@@ -155,8 +154,19 @@ function atualizarCarrinho() {
     const subtotal = p.preco * p.quantidade;
 
     div.innerHTML = `
-      <span>${p.nome} (${p.quantidade})</span>
-      <strong>R$ ${subtotal.toFixed(2).replace(".", ",")}</strong>
+      <div>
+        <strong>${p.nome}</strong>
+        <div class="mini-controle">
+          <button onclick="menos('${p.nome}')">−</button>
+          <span>${p.quantidade}</span>
+          <button onclick="mais('${p.nome}', ${p.preco})">+</button>
+        </div>
+      </div>
+
+      <div>
+        <strong>R$ ${subtotal.toFixed(2).replace(".", ",")}</strong>
+        <button onclick="remover('${p.nome}')" class="btn-remover">❌</button>
+      </div>
     `;
 
     box.appendChild(div);
@@ -195,6 +205,11 @@ function enviar() {
   msg += `\n💰 Total: R$ ${total.toFixed(2)}`;
 
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`);
+}
+
+// 📱 TOGGLE MOBILE
+function toggleCarrinho() {
+  document.getElementById("carrinho-area").classList.toggle("open");
 }
 
 // START
