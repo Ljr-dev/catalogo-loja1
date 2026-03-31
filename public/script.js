@@ -27,7 +27,6 @@ function renderCategorias() {
   categorias.forEach(cat => {
     const btn = document.createElement("div");
 
-    // 🔥 GARANTE QUE ACTIVE FUNCIONE
     btn.className = "cat-btn";
     if (cat === categoriaAtual) {
       btn.classList.add("active");
@@ -37,8 +36,7 @@ function renderCategorias() {
 
     btn.onclick = () => {
       categoriaAtual = cat;
-
-      renderCategorias(); // 🔥 ESSENCIAL (corrige o bug)
+      renderCategorias(); // 🔥 ESSENCIAL
       aplicarFiltros();
     };
 
@@ -59,6 +57,8 @@ function aplicarFiltros() {
   if (termo) {
     lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
   }
+
+  lista.sort((a, b) => a.nome.localeCompare(b.nome));
 
   render(lista);
 }
@@ -150,7 +150,15 @@ function atualizarCarrinho() {
 
   Object.values(carrinho).forEach(p => {
     const div = document.createElement("div");
-    div.innerText = `${p.nome} (${p.quantidade})`;
+    div.className = "item-carrinho";
+
+    const subtotal = p.preco * p.quantidade;
+
+    div.innerHTML = `
+      <span>${p.nome} (${p.quantidade})</span>
+      <strong>R$ ${subtotal.toFixed(2).replace(".", ",")}</strong>
+    `;
+
     box.appendChild(div);
   });
 }
@@ -175,7 +183,9 @@ function atualizarResumo() {
 // 📲
 function enviar() {
   let total = 0;
-  let msg = "🛒 PEDIDO\n\n";
+  let nomeCliente = document.getElementById("nome").value || "Cliente";
+
+  let msg = `🛒 Pedido de ${nomeCliente}\n\n`;
 
   Object.values(carrinho).forEach(p => {
     msg += `• ${p.nome} (${p.quantidade})\n`;

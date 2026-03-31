@@ -44,20 +44,38 @@ header {
   background: #e5e7eb;
   cursor: pointer;
   font-size: 13px;
-  transition: 0.2s;
 }
 
-/* 🔥 AQUI FOI A CORREÇÃO */
 .cat-btn.active {
   background: #2563eb;
   color: white;
   font-weight: bold;
 }
 
+/* 🔥 LAYOUT */
+.container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+/* DESKTOP */
+@media (min-width: 900px) {
+  .container {
+    grid-template-columns: 2fr 1fr;
+    padding: 10px;
+  }
+
+  .carrinho-area {
+    position: sticky;
+    top: 90px;
+    height: fit-content;
+  }
+}
+
 /* PRODUTOS */
 #produtos {
   padding: 10px;
-  margin-bottom: 120px;
 }
 
 .card {
@@ -93,12 +111,19 @@ header {
 /* CARRINHO */
 #carrinho-box {
   background: white;
-  margin: 10px;
-  padding: 10px;
+  padding: 12px;
   border-radius: 10px;
+  border: 1px solid #eee;
 }
 
-/* BOTTOM */
+.item-carrinho {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+/* BARRA */
 #bottom-bar {
   position: fixed;
   bottom: 0;
@@ -107,6 +132,7 @@ header {
   padding: 12px;
   display: flex;
   justify-content: space-between;
+  border-top: 1px solid #ddd;
 }
 
 #bottom-bar button {
