@@ -15,7 +15,7 @@
 
 <div class="top-area">
   <input id="nome" placeholder="👤 Seu nome" />
-  <input id="busca" placeholder="🔍 Buscar produtos..." />
+  <input id="busca" placeholder="🔍 Buscar produtos..." oninput="aplicarFiltros()" />
 </div>
 
 <div id="categorias"></div>
@@ -31,7 +31,9 @@
 <!-- 🔻 RESUMO FIXO -->
 <div id="bottom-bar">
   <span id="resumo">0 itens | R$ 0,00</span>
-  <button onclick="enviar()">Enviar orçamento</button>
+  <button id="btnEnviar" onclick="enviar()" style="display:none;">
+    Enviar orçamento
+  </button>
 </div>
 
 <script src="script.js"></script>

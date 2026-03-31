@@ -2,7 +2,6 @@ const numero = "5519982144043";
 
 let produtos = [];
 let carrinho = {};
-
 let categoriaAtual = "Todos";
 let categorias = [];
 
@@ -59,6 +58,8 @@ function aplicarFiltros() {
     lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
   }
 
+  lista.sort((a, b) => a.nome.localeCompare(b.nome));
+
   render(lista);
 }
 
@@ -80,7 +81,8 @@ function render(lista) {
       <div class="controle">
         <button onclick="menos('${p.nome}')">−</button>
 
-        <input type="number" value="${qtd}" class="input-qtd"
+        <input type="number" step="${p.tipo === 'decimal' ? '0.1' : '1'}"
+          value="${qtd}" class="input-qtd"
           oninput="setQtd('${p.nome}', this.value, ${p.preco}, '${p.tipo}', '${p.unidade}')">
 
         <button onclick="mais('${p.nome}', ${p.preco}, '${p.tipo}', '${p.unidade}')">+</button>
@@ -97,7 +99,13 @@ function mais(nome, preco, tipo, unidade) {
     carrinho[nome] = { nome, preco, quantidade: 0, tipo, unidade };
   }
 
-  carrinho[nome].quantidade += tipo === "decimal" ? 0.1 : 1;
+  if (tipo === "decimal") {
+    carrinho[nome].quantidade = parseFloat(
+      (carrinho[nome].quantidade + 0.1).toFixed(2)
+    );
+  } else {
+    carrinho[nome].quantidade += 1;
+  }
 
   atualizarTudo();
 }
@@ -147,19 +155,12 @@ function atualizarCarrinho() {
     const subtotal = p.preco * p.quantidade;
 
     div.innerHTML = `
-      <div class="item-nome">${p.nome} (${p.quantidade})</div>
-      <div class="item-preco">R$ ${subtotal.toFixed(2).replace(".", ",")}</div>
-      <button class="remover" onclick="removerItem('${p.nome}')">✕</button>
+      <span>${p.nome} (${p.quantidade} ${p.unidade})</span>
+      <span>R$ ${subtotal.toFixed(2).replace(".", ",")}</span>
     `;
 
     box.appendChild(div);
   });
-}
-
-// ❌
-function removerItem(nome) {
-  delete carrinho[nome];
-  atualizarTudo();
 }
 
 // 💰
@@ -169,20 +170,25 @@ function atualizarResumo() {
 
   Object.values(carrinho).forEach(p => {
     total += p.preco * p.quantidade;
-    itens += p.quantidade;
+    itens += p.tipo === "int" ? p.quantidade : 1;
   });
 
   document.getElementById("resumo").innerText =
     `${itens} itens | R$ ${total.toFixed(2).replace(".", ",")}`;
+
+  document.getElementById("btnEnviar").style.display =
+    total > 0 ? "block" : "none";
 }
 
 // 📲
 function enviar() {
   let total = 0;
-  let msg = "🛒 PEDIDO\n\n";
+  let nomeCliente = document.getElementById("nome").value || "Cliente";
+
+  let msg = `🛒 Pedido de ${nomeCliente}\n\n`;
 
   Object.values(carrinho).forEach(p => {
-    msg += `• ${p.nome} (${p.quantidade})\n`;
+    msg += `• ${p.nome} (${p.quantidade} ${p.unidade})\n`;
     total += p.preco * p.quantidade;
   });
 
